@@ -1,0 +1,21 @@
+[package]
+name = "avoxel_generator"
+version = "0.1.0"
+authors = ["nic96 <nic96@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+avoxel_blocks = { path = "../avoxel_blocks", version = "0.1.0" }
+avoxel_chunk = { path = "../avoxel_chunk", version = "0.1.0" }
+avoxel_math = { path = "../avoxel_math", version = "0.1.0" }
+bevy_math = "0.4.0"
+noise = "0.6"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "generate_chunks"
+harness = false

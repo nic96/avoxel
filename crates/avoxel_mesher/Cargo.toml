@@ -1,0 +1,27 @@
+[package]
+name = "avoxel_mesher"
+version = "0.1.0"
+authors = ["nic96 <nic96@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+avoxel_blocks = { path = "../avoxel_blocks", version = "0.1.0" }
+avoxel_chunk = { path = "../avoxel_chunk", version = "0.1.0" }
+avoxel_chunk_map = { path = "../avoxel_chunk_map", version = "0.1.0" }
+avoxel_generator = { path = "../avoxel_generator", version = "0.1.0" }
+avoxel_rendering = { path = "../avoxel_rendering", version = "0.1.0" }
+avoxel_math = { path = "../avoxel_math", version = "0.1.0" }
+bevy = "0.5.0"
+crossbeam-channel = "0.5"
+
+[dev-dependencies]
+criterion = "0.3"
+noise = "0.6"
+rand_core = "0.5"
+rand_xorshift = "0.2"
+
+[[bench]]
+name = "meshers"
+harness = false

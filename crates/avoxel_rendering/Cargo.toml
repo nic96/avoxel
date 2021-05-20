@@ -1,0 +1,8 @@
+[package]
+name = "avoxel_rendering"
+version = "0.1.0"
+authors = ["nic96 <nic96@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+bevy = "0.5.0"
