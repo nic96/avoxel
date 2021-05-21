@@ -5,6 +5,7 @@ use crate::{
 };
 use avoxel_blocks::{Block, BlockLibrary};
 use avoxel_chunk::{Chunk, Lz4CompressedChunk, Voxel, CHUNK_SIZE};
+use avoxel_generator::default_generator;
 use avoxel_math::{DivFloor, Pos};
 use bevy::{
     prelude::*,
@@ -23,7 +24,7 @@ pub struct ChunkMap {
     /// Compressed chunks
     pub compressed_chunks: HashMap<Pos, Lz4CompressedChunk>,
     pub(crate) compression_level: u32,
-    /// Whether to use byteorder when compressing voxels
+    /// Whether to use LittleEndian byteorder when compressing voxels or native byteorder
     pub(crate) compress_byteorder: bool,
     /// Visible chunks contains coordinates for chunks that should be loaded
     pub visible_chunks: HashSet<Pos>,
@@ -38,6 +39,7 @@ pub struct ChunkMap {
     pub(crate) decompression_channels: DecompressionChannels,
     /// Block Library used by mesher for meshing and texturing
     pub block_library: Arc<BlockLibrary>,
+    pub generator: &'static (dyn Fn(&Pos) -> Chunk + Send + Sync + 'static),
 }
 
 impl Default for ChunkMap {
@@ -54,6 +56,7 @@ impl Default for ChunkMap {
             compression_channels: Default::default(),
             decompression_channels: Default::default(),
             block_library: Arc::new(Default::default()),
+            generator: &default_generator::generate_chunk,
         }
     }
 }
@@ -69,9 +72,14 @@ pub enum ChunkState {
 }
 
 impl ChunkMap {
-    pub fn new(byteorder: bool) -> Self {
+    /// * `byteorder` - if set to true uses LittleEndian byteorder when compressing instead of native byteorder
+    pub fn new(
+        byteorder: bool,
+        generator: &'static (dyn Fn(&Pos) -> Chunk + Send + Sync + 'static),
+    ) -> Self {
         Self {
             compress_byteorder: byteorder,
+            generator,
             ..Default::default()
         }
     }

@@ -1,1 +1,1 @@
-pub mod generator;
+pub mod default_generator;

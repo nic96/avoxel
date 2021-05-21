@@ -4,7 +4,6 @@ use crate::{
     chunk_viewer::{ChunkViewer, ChunkViewerMoveEvent},
 };
 use avoxel_blocks::BlockLibrary;
-use avoxel_generator::generator::generate_chunk;
 use bevy::{diagnostic::Diagnostics, prelude::*, tasks::AsyncComputeTaskPool};
 use parking_lot::Mutex;
 use std::{mem::size_of, sync::Arc, time::Instant};
@@ -55,10 +54,11 @@ pub fn gen_chunks_system(
         chunk_map.set_chunk_state_loading(&pos.clone());
         let sender = chunk_map.gen_channels.tx.clone();
         let pos = *pos;
+        let generator = (chunk_map.generator).clone();
         pool.spawn(async move {
             let start_instant = Instant::now();
             sender
-                .send((generate_chunk(&pos), start_instant))
+                .send(((generator)(&pos), start_instant))
                 .expect("Failed to send chunk");
         })
         .detach();

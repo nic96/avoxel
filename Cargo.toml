@@ -23,6 +23,7 @@ avoxel_rendering = { path = "crates/avoxel_rendering", version = "0.1.0", option
 [dev-dependencies]
 bevy = "0.5.0"
 nalgebra = "0.26"
+noise = "0.6"
 
 [[example]]
 name = "demo"

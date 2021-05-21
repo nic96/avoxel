@@ -9,6 +9,7 @@ use bevy::pbr::AmbientLight;
 
 mod block_library;
 mod cube_cursor;
+mod generator;
 mod hud;
 mod interaction;
 mod player;
@@ -25,6 +26,8 @@ fn main() {
             brightness: 1.0,
         })
         .insert_resource(ClearColor(Color::rgb_u8(92, 119, 127)))
+        // ChunkMap is the core of avoxel and to change terrain generation modify or change the generate chunk method
+        .insert_resource(ChunkMap::new(false, &generator::generate_chunk))
         .add_plugins(DefaultPlugins)
         .add_plugin(BlockLibraryPlugin)
         .add_plugins(AvoxelDefaultPlugins)
@@ -36,6 +39,7 @@ fn main() {
         .add_system(capture_mouse_system.system())
         .add_system(player_rotation_system.system())
         .add_system(player_movement_system.system())
+        .add_system(toggle_fly.system())
         .run();
 }
 

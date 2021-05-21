@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate criterion;
-use avoxel_blocks::block_library::BlockLibrary;
-use avoxel_chunk::chunk::Chunk;
-use avoxel_generator::generator::generate_chunk;
+use avoxel_blocks::BlockLibrary;
+use avoxel_chunk::Chunk;
+use avoxel_generator::default_generator;
 use avoxel_math::Pos;
 use avoxel_mesher::mesher_culling::generate_mesh_culled;
 use bevy::prelude::Vec3;
@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 fn generate_data() -> Chunk {
     println!("Generating data");
-    generate_chunk(&Pos::new(0, -1, 0))
+    default_generator::generate_chunk(&Pos::new(0, -1, 0))
 }
 
 fn bench_mesher_culling(c: &mut Criterion) {

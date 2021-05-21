@@ -5,6 +5,7 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::render::camera::PerspectiveProjection;
 use nalgebra::{clamp, wrap};
+use bevy::utils::Duration;
 
 const GRAVITY: f32 = 9.8;
 const RENDER_DISTANCE: i32 = 4;
@@ -17,6 +18,7 @@ pub struct PlayerSettings {
     pub speed: f32,
     pub sprint_speed: f32,
     pub mouse_sensitivity: f32,
+    pub flying: bool,
 }
 
 impl Default for PlayerSettings {
@@ -27,6 +29,7 @@ impl Default for PlayerSettings {
             speed: 7.0,
             sprint_speed: 12.0,
             mouse_sensitivity: 0.1,
+            flying: false,
         }
     }
 }
@@ -71,6 +74,29 @@ pub fn setup_player(
                 .insert(FirstPersonCam);
         })
         .insert(ChunkViewer::new(RENDER_DISTANCE, Pos::default()));
+}
+
+pub struct ToggleFlyState{
+    pub timer: Timer,
+}
+
+impl Default for ToggleFlyState {
+    fn default() -> Self {
+        Self {
+            timer: Timer::default(),
+        }
+    }
+}
+
+pub fn toggle_fly(mut settings: ResMut<PlayerSettings>, input: Res<Input<KeyCode>>, mut state: Local<ToggleFlyState>, time: Res<Time>) {
+    if input.just_pressed(KeyCode::Space) {
+        if !state.timer.finished() {
+            settings.flying = !settings.flying;
+        } else {
+            state.timer = Timer::new(Duration::from_secs_f32(0.3), false);
+        }
+    }
+    state.timer.tick(time.delta());
 }
 
 pub struct PlayerRotation {
@@ -135,20 +161,32 @@ pub fn player_movement_system(
     mut chunk_viewer: Query<&mut ChunkViewer>,
 ) {
     let jump = input.pressed(KeyCode::Space);
-    let speed;
+    let crouch = input.pressed(KeyCode::LShift);
+    let mut speed = player_settings.speed;
+    if player_settings.flying {
+        speed = player_settings.fly_normal_speed;
+    }
     if input.pressed(KeyCode::LControl) {
         speed = player_settings.sprint_speed;
-    } else {
-        speed = player_settings.speed;
+        if player_settings.flying {
+            speed = player_settings.fly_sprint_speed;
+        }
     }
     let mut input_dir = get_input_dir(input);
     for hc in query.iter() {
         if let Some(b) = box_map.get_mut(hc.handle()) {
             let mut velocity = b.velocity();
-            if b.is_on_floor() && jump {
-                velocity.y += 10.0;
+            if player_settings.flying {
+                velocity.y = 0.0;
+                if jump {velocity.y += 20.0}
+                if crouch && !b.is_on_floor() {velocity.y -= 20.0}
             }
-            velocity.y -= GRAVITY * time.delta_seconds() * 4.;
+            else {
+                if b.is_on_floor() && jump {
+                    velocity.y += 10.0;
+                }
+                velocity.y -= GRAVITY * time.delta_seconds() * 4.;
+            }
             if input_dir.length() > 0. {
                 // Multiplying a quaternion and a 3D vector rotates the 3D vector.
                 // this is done to convert the input direction which is a global direction
